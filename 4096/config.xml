@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="anpho.game4096" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:rim="http://www.blackberry.com/ns/widgets">
+    <name>4096</name>
+    <author>anpho</author>
+    <description>Join the numbers and get to the 4096 tile!</description>
+    <content src="index.html" />
+    <icon src="img/114.png" />
+    <preference name="AutoHideSplashScreen" value="false" />
+    <preference name="ChildBrowser" value="enable" />
+    <preference name="DiskCache" value="enable" />
+    <preference name="HideKeyboardFormAccessoryBar" value="disable" />
+    <preference name="Orientation" value="portrait" />
+    <preference name="PopupBlocker" value="disable" />
+    <preference name="WebSecurity" value="disable" />
+
+    <rim:splash src="img/splash.png"/>
+</widget>

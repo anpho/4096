@@ -1,0 +1,8 @@
+{
+    "version": "1.0.0",
+    "name": "com.blackberry.community.screenshot",
+    "cordova_name": "Screenshot",
+    "description": "BlackBerry 10 Community Contributed API to take an in-app screenshot",
+    "license": "Apache 2.0",
+    "engines": []
+}

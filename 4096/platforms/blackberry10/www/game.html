@@ -1,0 +1,63 @@
+<div data-bb-type="screen" data-bb-scroll-effect="off" id="gamescr">
+    <div  style="-webkit-transform: translate3d(0, 0, 0);">
+        <div class="heading" style="margin: 10px 35px">
+            <h1 class="title" onclick="app.gamemgr.restart()">4096</h1>
+            <div class="scores-container">
+                <div class="score-container">0</div>
+                <div class="best-container">0</div>
+            </div>
+        </div>
+        <p class="game-intro">Join the numbers and get to the <strong>4096 tile!</strong>
+        </p>
+    </div>
+    <div class="container"  style="-webkit-transform: translate3d(0, 0, 0);">
+        <div class="game-container">
+            <div class="game-message">
+                <p></p>
+                <div class="lower">
+                    <div class="retry-button">
+                        <div data-bb-type="button" data-bb-style="stretch">Try again</div>
+                    </div>
+                    <div class="score-sharing">
+                        <div data-bb-type="button" data-bb-style="stretch">Share</div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid-container">
+                <div class="grid-row">
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                </div>
+                <div class="grid-row">
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                </div>
+                <div class="grid-row">
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                </div>
+                <div class="grid-row">
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                </div>
+            </div>
+            <div class="tile-container"></div>
+        </div>
+    </div>
+    <p class="game-explanation"> <strong class="important">How to play:</strong> Swipe your <strong>finger</strong> to move the tiles. When two tiles with the same number touch, they <strong>merge into one!</strong>
+    </p>
+
+    <div data-bb-type="menu">
+        <div data-bb-type="menu-item" data-bb-img="img/ic_info.png" onclick="bb.pushScreen('help.html', 'help');" >About</div>
+        <div data-bb-type="menu-item" data-bb-img="img/ic_browser.png" onclick="Invoke.blackberryWorld.app(app.id)" >Rate</div>
+        <div data-bb-type="menu-item" data-bb-img="img/ic_settings.png" onclick="bb.pushScreen('settings.html', 'settings');" >Settings</div>
+    </div>
+</div>
