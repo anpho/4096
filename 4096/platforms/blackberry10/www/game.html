@@ -1,25 +1,28 @@
 <div data-bb-type="screen" data-bb-scroll-effect="off" id="gamescr">
     <div  style="-webkit-transform: translate3d(0, 0, 0);">
         <div class="heading" style="margin: 10px 35px">
-            <h1 class="title" onclick="app.gamemgr.restart()">4096</h1>
+            <h1 class="title">4096</h1>
             <div class="scores-container">
                 <div class="score-container">0</div>
                 <div class="best-container">0</div>
             </div>
         </div>
-        <p class="game-intro">Join the numbers and get to the <strong>4096 tile!</strong>
-        </p>
+        <p class="game-intro" i18n="true">`intro`</p>
+        <div data-bb-type="button" data-bb-img="img/ic_history.png" id="undobtn" i18n="true">`Undo`</div>
     </div>
     <div class="container"  style="-webkit-transform: translate3d(0, 0, 0);">
         <div class="game-container">
             <div class="game-message">
                 <p></p>
                 <div class="lower">
+                    <div class="keep-playing-button" >
+                        <div data-bb-type="button" data-bb-style="stretch" i18n="true">`keepgoing`</div>
+                    </div>
                     <div class="retry-button">
-                        <div data-bb-type="button" data-bb-style="stretch">Try again</div>
+                        <div data-bb-type="button" data-bb-style="stretch" i18n="true">`tryagain`</div>
                     </div>
                     <div class="score-sharing">
-                        <div data-bb-type="button" data-bb-style="stretch">Share</div>
+                        <div data-bb-type="button" data-bb-style="stretch" i18n="true">`share`</div>
                     </div>
                 </div>
             </div>
@@ -52,12 +55,13 @@
             <div class="tile-container"></div>
         </div>
     </div>
-    <p class="game-explanation"> <strong class="important">How to play:</strong> Swipe your <strong>finger</strong> to move the tiles. When two tiles with the same number touch, they <strong>merge into one!</strong>
-    </p>
+    <p class="game-explanation" i18n="true">`expl`</p>
 
     <div data-bb-type="menu">
-        <div data-bb-type="menu-item" data-bb-img="img/ic_info.png" onclick="bb.pushScreen('help.html', 'help');" >About</div>
-        <div data-bb-type="menu-item" data-bb-img="img/ic_browser.png" onclick="Invoke.blackberryWorld.app(app.id)" >Rate</div>
-        <div data-bb-type="menu-item" data-bb-img="img/ic_settings.png" onclick="bb.pushScreen('settings.html', 'settings');" >Settings</div>
+        <div data-bb-type="menu-item" data-bb-img="img/ic_info.png" onclick="bb.pushScreen('help.html', 'help');" i18n="true">`About`</div>
+        <div data-bb-type="menu-item" data-bb-img="img/ic_browser.png" onclick="Invoke.blackberryWorld.app(app.id)" i18n="true">`Rate`</div>
+        <div data-bb-type="menu-item" data-bb-img="img/ic_reload.png" onclick="app.gamemgr.restart()" i18n="true">`_reset`</div>
+        <div data-bb-type="menu-item" data-bb-img="img/ic_speaker.png" onclick="toggleMute()" i18n="true">`_mute`</div>
+        <div data-bb-type="menu-item" data-bb-img="img/ic_settings.png" onclick="bb.pushScreen('settings.html', 'settings');" i18n="true">`Settings`</div>
     </div>
 </div>

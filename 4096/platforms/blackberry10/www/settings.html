@@ -1,11 +1,21 @@
 <div data-bb-type="screen">
-    <div data-bb-type="action-bar" data-bb-back-caption="Back" onclick="refreshTheme()"></div>
+    <div data-bb-type="action-bar" data-bb-back-caption="`back`" i18n="true" onclick="refreshTheme()"></div>
     <div data-bb-type="round-panel">
-        <div data-bb-type="panel-header">Visual Settings</div>
+        <div data-bb-type="panel-header" i18n="true">`visualsettings`</div>
         <table style="width:100%">
             <tr>
-                <td><div data-bb-type="label" style="float:left;line-height: 94px">Use Dark Theme:</div></td>
+                <td><div data-bb-type="label" style="float:left;line-height: 94px" i18n="true">`dark`</div></td>
                 <td width="5%"><input type="checkbox" style="float:right" id="themeToggle" onchange="saveSettings(this)"></td>
+            </tr>
+        </table>
+    </div>
+
+    <div data-bb-type="round-panel">
+        <div data-bb-type="panel-header" i18n="true">`sound`</div>
+        <table style="width:100%">
+            <tr>
+                <td><div data-bb-type="label" style="float:left;line-height: 94px" i18n="true">`usesound`</div></td>
+                <td width="5%"><input type="checkbox" style="float:right" id="soundToggle" onchange="saveSoundSettings(this)"></td>
             </tr>
         </table>
     </div>

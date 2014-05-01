@@ -64,10 +64,31 @@ module.exports = [
         ]
     },
     {
+        "file": "plugins/com.blackberry.community.LowLatencyAudio/www/client.js",
+        "id": "com.blackberry.community.LowLatencyAudio.client",
+        "merges": [
+            "PGLowLatencyAudio"
+        ]
+    },
+    {
         "file": "plugins/com.blackberry.community.screenshot/www/client.js",
         "id": "com.blackberry.community.screenshot.client",
         "clobbers": [
             "community.screenshot"
+        ]
+    },
+    {
+        "file": "plugins/com.blackberry.payment/www/client.js",
+        "id": "com.blackberry.payment.client",
+        "clobbers": [
+            "blackberry.payment"
+        ]
+    },
+    {
+        "file": "plugins/com.blackberry.ui.toast/www/client.js",
+        "id": "com.blackberry.ui.toast.client",
+        "clobbers": [
+            "blackberry.ui.toast"
         ]
     }
 ];
@@ -83,7 +104,10 @@ module.exports.metadata =
     "com.blackberry.invoke": "1.0.0",
     "com.blackberry.invoke.card": "1.0.0",
     "com.blackberry.io": "1.0.0",
-    "com.blackberry.community.screenshot": "1.0.0"
+    "com.blackberry.community.LowLatencyAudio": "1.0.0",
+    "com.blackberry.community.screenshot": "1.0.0",
+    "com.blackberry.payment": "1.0.0",
+    "com.blackberry.ui.toast": "1.0.0"
 }
 // BOTTOM OF METADATA
 });

@@ -1,0 +1,8 @@
+{
+    "version": "1.0.0",
+    "name": "com.blackberry.community.lowlatencyaudio",
+    "cordova_name": "Low Latency Audio",
+    "description": "BlackBerry 10 Community Contributed API to support Low Latency Audio for .WAV files using OpenAL",
+    "license": "Apache 2.0",
+    "engines": []
+}

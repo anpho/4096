@@ -3,7 +3,7 @@ var app = {
     initialize: function() {
         this.bindEvents();
     },
-    id: 52432887,
+    id: 50976889,
     // Bind Event Listeners
     //
     // Bind any events that are required on startup. Common events are:
@@ -28,11 +28,29 @@ var app = {
     useDarkTheme: true,
     darkScreenColor: '#000',
     gamemgr: null,
-    ss:null,
-    screenshot:null,
+    ss: null,
+    lang: null,
+    undo: true,
+    screenshot: null,
+    useAudio: true,
+    preloadAudio: function() {
+        PGLowLatencyAudio.preloadAudio("low.wav", "sounds/", 1, function(echoValue) {
+            console.log(echoValue);
+        });
+        PGLowLatencyAudio.preloadAudio("high.wav", "sounds/", 1, function(echoValue) {
+            console.log(echoValue);
+        });
+        PGLowLatencyAudio.preloadAudio("win.wav", "sounds/", 1, function(echoValue) {
+            console.log(echoValue);
+        });
+    },
     bbinit: function() {
-        app.ss="file://"+blackberry.io.home+"/ss.png";
+        app.lang = blackberry.system.language;
+        app.ss = "file://" + blackberry.io.home + "/ss.png";
         app.useDarkTheme = (localStorage.getItem('theme') === "true");
+        app.useAudio = (localStorage.getItem('sound') === "true");
+        app.undo = true;
+        app.preloadAudio();
         if (!app.useDarkTheme) {
             document.body.classList.remove('dark');
         } else {
@@ -44,6 +62,7 @@ var app = {
             controlsDark: app.useDarkTheme,
             listsDark: app.useDarkTheme,
             onscreenready: function(e, id) {
+                i18n.process(e, app.lang);
                 if (app.useDarkTheme) {
                     var screen = e.querySelector('[data-bb-type=screen]');
                     if (screen) {
@@ -53,15 +72,15 @@ var app = {
                         document.body.classList.add("dark")
                     }
                 }
-
             },
             ondomready: function(e, id, param) {
                 if (id === 'settings') {
                     loadSettings(e);
                 }
                 if (id === 'game') {
+                    loadstate(e);
                     window.requestAnimationFrame(function() {
-                        app.gamemgr = new GameManager(4, KeyboardInputManager, HTMLActuator, LocalScoreManager);
+                        app.gamemgr = new GameManager(4, KeyboardInputManager, HTMLActuator, LocalStorageManager);
                     });
                 }
             }
@@ -111,7 +130,17 @@ function loadSettings(element) {
     } else {
         togglebutton.setChecked(false);
     }
-    bb.refresh();
+
+    // 读取配置数据
+    var sndbutton = element.getElementById('soundToggle');
+    var snd = localStorage.getItem("sound");
+    if ('true' === snd) {
+        sndbutton.setChecked(true);
+    } else {
+        sndbutton.setChecked(false);
+    }
+
+    //bb.refresh();
 }
 function saveSettings(e) {
     if (e.checked) {
@@ -122,4 +151,44 @@ function saveSettings(e) {
         localStorage.setItem("theme", "false");
     }
 }
+function saveSoundSettings(e) {
+    if (e.checked) {
+        console.log(">>启用声音.");
+        localStorage.setItem("sound", "true");
+    } else {
+        console.log(">>禁用声音.");
+        localStorage.setItem("sound", "false");
+    }
+}
 
+function loadstate(e) {
+    var tm = document.querySelectorAll('[class=bb-menu-bar-item]')[3];
+    if (app.useAudio) {
+        tm.firstChild.src = 'img/ic_speaker.png';
+        tm.lastChild.innerHTML = i18n.get('_mute', app.lang);
+    } else {
+        tm.firstChild.src = 'img/ic_speaker_mute.png';
+        tm.lastChild.innerHTML = i18n.get('mute', app.lang);
+    }
+}
+
+function toggleMute() {
+    app.useAudio = !app.useAudio;
+    loadstate(document);
+    var b = {
+        checked: app.useAudio
+    };
+    saveSoundSettings(b);
+}
+
+function undoHandler(event) {
+    event.preventDefault();
+    // undo button click handler
+    app.gamemgr.move(-1);
+}
+
+
+
+function g(id) {
+    return document.getElementById(id);
+}

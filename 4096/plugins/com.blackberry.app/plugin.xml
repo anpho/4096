@@ -17,6 +17,7 @@
  under the License.
 -->
 <plugin xmlns="http://cordova.apache.org/ns/plugins/1.0"
+    xmlns:rim="http://www.blackberry.com/ns/widgets"
     id="com.blackberry.app"
     version="1.0.0">
 
