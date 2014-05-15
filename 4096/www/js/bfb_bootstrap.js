@@ -55,9 +55,10 @@ var Bbm = {
     // registers this application with the blackberry.bbm.platform APIs.
     register: function() {
         blackberry.event.addEventListener('onaccesschanged', function(accessible, status) {
+            console.log(accessible + "/" + status);
             if (status === 'unregistered') {
                 blackberry.bbm.platform.register({
-                    uuid: '5b54bb3a-cccc-dddd-eeee-f23c91aef1f0' // unique uuid
+                    uuid: 'd4a0327f-c94e-4471-a6b9-c59cff90c5d7' // unique uuid
                 });
             } else if (status === 'allowed') {
                 Bbm.registered = accessible;
@@ -83,6 +84,19 @@ var Bbm = {
     // invite a contact to download your app via bbm
     inviteToDownload: function() {
         blackberry.bbm.platform.users.inviteToDownload();
+    },
+    setUpdateMessage: function(txt) {
+        blackberry.bbm.platform.self.setPersonalMessage(
+                txt,
+                function(accepted) {
+                });
+    },
+    getppid:function(){
+        if (this.registered){
+            return blackberry.bbm.platform.self.ppid;
+        }else{
+            return null;
+        }
     }
 };
 

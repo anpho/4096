@@ -11,18 +11,18 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
     this.inputManager.on("keepPlaying", this.keepPlaying.bind(this));
 
     this.undoStack = [];
-
     this.setup();
 }
 
 // Restart the game
 GameManager.prototype.restart = function() {
     this.storageManager.clearGameState();
+    this.undoStack = [];
     this.actuator.continueGame(); // Clear the game won/lost message
     this.setup();
 };
 
-// Keep playing after winning (allows going over 2048)
+// Keep playing after winning (allows going over 4096)
 GameManager.prototype.keepPlaying = function() {
     this.keepPlaying = true;
     this.actuator.continueGame(); // Clear the game won/lost message
@@ -71,7 +71,6 @@ GameManager.prototype.addRandomTile = function() {
     if (this.grid.cellsAvailable()) {
         var value = Math.random() < 0.9 ? 2 : 4;
         var tile = new Tile(this.grid.randomAvailableCell(), value);
-
         this.grid.insertTile(tile);
     }
 };
@@ -132,7 +131,7 @@ GameManager.prototype.move = function(direction) {
     // 0: up, 1: right, 2:down, 3: left, -1: undo
     var self = this;
 
-    if (direction == -1) {
+    if (direction === -1) {
         if (!app.undo) {
             Toast.regular(i18n.get('needpurchase', app.lang), 1500);
             return;
@@ -203,7 +202,7 @@ GameManager.prototype.move = function(direction) {
                     // Update the score
                     self.score += merged.value;
 
-                    // The mighty 2048 tile
+                    // The mighty 4096 tile
                     if (merged.value === 4096)
                         self.won = true;
                 } else {
@@ -227,7 +226,12 @@ GameManager.prototype.move = function(direction) {
         }
 
         // Save state
-        this.undoStack.push(undo);
+        if (app.undo) {
+            if (this.undoStack.length >= 50) {
+                this.undoStack.shift();
+            }
+            this.undoStack.push(undo);
+        }
 
         this.actuate();
     }
@@ -324,9 +328,7 @@ GameManager.prototype.tileMatchesAvailable = function() {
                         x: x + vector.x,
                         y: y + vector.y
                     };
-
                     var other = self.grid.cellContent(cell);
-
                     if (other && other.value === tile.value) {
                         return true; // These two tiles can be merged
                     }
@@ -341,34 +343,6 @@ GameManager.prototype.tileMatchesAvailable = function() {
 GameManager.prototype.positionsEqual = function(first, second) {
     return first.x === second.x && first.y === second.y;
 };
-
-///////////////////////////////
-(function() {
-    var lastTime = 0;
-    var vendors = ['webkit', 'moz'];
-    for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
-        window.requestAnimationFrame = window[vendors[x] + 'RequestAnimationFrame'];
-        window.cancelAnimationFrame = window[vendors[x] + 'CancelAnimationFrame'] || window[vendors[x] + 'CancelRequestAnimationFrame'];
-    }
-
-    if (!window.requestAnimationFrame) {
-        window.requestAnimationFrame = function(callback) {
-            var currTime = new Date().getTime();
-            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-            var id = window.setTimeout(function() {
-                callback(currTime + timeToCall);
-            }, timeToCall);
-            lastTime = currTime + timeToCall;
-            return id;
-        };
-    }
-
-    if (!window.cancelAnimationFrame) {
-        window.cancelAnimationFrame = function(id) {
-            clearTimeout(id);
-        };
-    }
-}());
 
 Function.prototype.bind = Function.prototype.bind ||
         function(target) {
@@ -598,7 +572,7 @@ function HTMLActuator() {
 HTMLActuator.prototype.actuate = function(grid, metadata) {
     var self = this;
 
-    window.requestAnimationFrame(function() {
+    window.webkitRequestAnimationFrame(function() {
         self.clearContainer(self.tileContainer);
 
         grid.cells.forEach(function(column) {
@@ -658,7 +632,7 @@ HTMLActuator.prototype.addTile = function(tile) {
 
     if (tile.previousPosition) {
         // Make sure that the tile gets rendered in the previous position first
-        window.requestAnimationFrame(function() {
+        window.webkitRequestAnimationFrame(function() {
             classes[2] = self.positionClass({
                 x: tile.x,
                 y: tile.y
@@ -710,20 +684,22 @@ HTMLActuator.prototype.updateScore = function(score) {
     this.scoreContainer.textContent = this.score;
 
     if (difference > 0) {
-        var addition = document.createElement("div");
-        addition.classList.add("score-addition");
-        addition.textContent = "+" + difference;
-        this.scoreContainer.appendChild(addition);
+//        var addition = document.createElement("div");
+//        addition.classList.add("score-addition");
+//        addition.textContent = "+" + difference;
+//        this.scoreContainer.appendChild(addition);
         if (app.useAudio) {
+//            setTimeout(function() {
             PGLowLatencyAudio.play("high.wav", function(echoValue) {
-                console.log(echoValue);
             });
+//            }, 1);
         }
     } else {
         if (app.useAudio) {
+//            setTimeout(function() {
             PGLowLatencyAudio.play("low.wav", function(echoValue) {
-                console.log(echoValue);
             });
+//            }, 1);
         }
     }
 };
@@ -736,9 +712,11 @@ HTMLActuator.prototype.message = function(won) {
     var type = won ? "game-won" : "game-over";
     var message = won ? i18n.get('win', app.lang) : i18n.get('over', app.lang);
     if (app.useAudio) {
+//        setTimeout(function() {
         PGLowLatencyAudio.play("win.wav", function(echoValue) {
-            console.log(echoValue);
+//                console.log(echoValue);
         });
+//        }, 1);
     }
     setTimeout(function() {
         app.gamemgr.actuator.messageContainer.classList.add(type);
@@ -767,16 +745,11 @@ function tweetscore(score) {
 function KeyboardInputManager() {
     this.events = {};
 
-    if (window.navigator.msPointerEnabled) {
-        //Internet Explorer 10 style
-        this.eventTouchstart = "MSPointerDown";
-        this.eventTouchmove = "MSPointerMove";
-        this.eventTouchend = "MSPointerUp";
-    } else {
-        this.eventTouchstart = "touchstart";
-        this.eventTouchmove = "touchmove";
-        this.eventTouchend = "touchend";
-    }
+
+    this.eventTouchstart = "touchstart";
+    this.eventTouchmove = "touchmove";
+    this.eventTouchend = "touchend";
+
 
     this.listen();
 }
@@ -856,21 +829,16 @@ KeyboardInputManager.prototype.listen = function() {
     // Respond to swipe events
     var touchStartClientX,
             touchStartClientY;
-    var gameContainer = document.getElementsByClassName("game-container")[0];
-    //var gameContainer = document.getElementById("gamescr");
+    //var gameContainer = document.getElementsByClassName("game-container")[0];
+    var gameContainer = document.getElementById("gamescr");
 
     gameContainer.addEventListener(this.eventTouchstart, function(event) {
-        if ((!window.navigator.msPointerEnabled && event.touches.length > 1) || event.targetTouches > 1) {
+        if ((event.touches.length > 1) || event.targetTouches > 1) {
             return; // Ignore if touching with more than 1 finger
         }
 
-        if (window.navigator.msPointerEnabled) {
-            touchStartClientX = event.pageX;
-            touchStartClientY = event.pageY;
-        } else {
-            touchStartClientX = event.touches[0].clientX;
-            touchStartClientY = event.touches[0].clientY;
-        }
+        touchStartClientX = event.touches[0].clientX;
+        touchStartClientY = event.touches[0].clientY;
 
         event.preventDefault();
     });
@@ -880,20 +848,17 @@ KeyboardInputManager.prototype.listen = function() {
     });
 
     gameContainer.addEventListener(this.eventTouchend, function(event) {
-        if ((!window.navigator.msPointerEnabled && event.touches.length > 0) || event.targetTouches > 0) {
+        if ((event.touches.length > 0) || event.targetTouches > 0) {
             return; // Ignore if still touching with one or more fingers
         }
 
         var touchEndClientX,
                 touchEndClientY;
 
-        if (window.navigator.msPointerEnabled) {
-            touchEndClientX = event.pageX;
-            touchEndClientY = event.pageY;
-        } else {
-            touchEndClientX = event.changedTouches[0].clientX;
-            touchEndClientY = event.changedTouches[0].clientY;
-        }
+
+        touchEndClientX = event.changedTouches[0].clientX;
+        touchEndClientY = event.changedTouches[0].clientY;
+
 
         var dx = touchEndClientX - touchStartClientX;
         var absDx = Math.abs(dx);
@@ -901,7 +866,7 @@ KeyboardInputManager.prototype.listen = function() {
         var dy = touchEndClientY - touchStartClientY;
         var absDy = Math.abs(dy);
 
-        if (Math.max(absDx, absDy) > 50) { //change from 10 to 50.
+        if (Math.max(absDx, absDy) > 50) {
             // (right : left) : (down : up)
             self.emit("move", absDx > absDy ? (dx > 0 ? 1 : 3) : (dy > 0 ? 2 : 0));
         }
@@ -910,12 +875,31 @@ KeyboardInputManager.prototype.listen = function() {
 
 KeyboardInputManager.prototype.restart = function(event) {
     event.preventDefault();
-    this.emit("restart");
+    var t = this;
+    try {
+        blackberry.ui.dialog.standardAskAsync(i18n.get('restart', app.lang), blackberry.ui.dialog.D_YES_NO, function(c) {
+            if (c.return === 'Yes') {
+                t.emit("restart");
+            }
+        }, {title: i18n.get('confirm', app.lang)});
+    } catch (e) {
+        Toast.regular("Exception in standardDialog: " + e, 1500);
+    }
 };
 
 KeyboardInputManager.prototype.keepPlaying = function(event) {
     event.preventDefault();
-    this.emit("keepPlaying");
+    var t = this;
+    try {
+        blackberry.ui.dialog.standardAskAsync(i18n.get('keepplaying', app.lang), blackberry.ui.dialog.D_YES_NO, function(c) {
+            if (c.return === 'Yes') {
+                t.emit("keepPlaying");
+            }
+        }, {title: i18n.get('confirm', app.lang)});
+    } catch (e) {
+        Toast.regular("Exception in standardDialog: " + e, 1500);
+    }
+
 };
 
 KeyboardInputManager.prototype.bindButtonPress = function(selector, fn) {

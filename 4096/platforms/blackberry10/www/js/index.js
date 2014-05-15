@@ -3,7 +3,7 @@ var app = {
     initialize: function() {
         this.bindEvents();
     },
-    id: 50976889,
+    id: 52432887,
     // Bind Event Listeners
     //
     // Bind any events that are required on startup. Common events are:
@@ -25,19 +25,20 @@ var app = {
         app.bbinit();
         //Bbm.register();
     },
-    useDarkTheme: true,
+    theme: 'dark',
     darkScreenColor: '#000',
     gamemgr: null,
     ss: null,
     lang: null,
     undo: true,
+    vividbackground: "#776e65",
     screenshot: null,
     useAudio: true,
     preloadAudio: function() {
-        PGLowLatencyAudio.preloadAudio("low.wav", "sounds/", 1, function(echoValue) {
+        PGLowLatencyAudio.preloadAudio("low.wav", "sounds/", 4, function(echoValue) {
             console.log(echoValue);
         });
-        PGLowLatencyAudio.preloadAudio("high.wav", "sounds/", 1, function(echoValue) {
+        PGLowLatencyAudio.preloadAudio("high.wav", "sounds/", 4, function(echoValue) {
             console.log(echoValue);
         });
         PGLowLatencyAudio.preloadAudio("win.wav", "sounds/", 1, function(echoValue) {
@@ -47,29 +48,41 @@ var app = {
     bbinit: function() {
         app.lang = blackberry.system.language;
         app.ss = "file://" + blackberry.io.home + "/ss.png";
-        app.useDarkTheme = (localStorage.getItem('theme') === "true");
+        app.theme = localStorage.getItem('theme');
         app.useAudio = (localStorage.getItem('sound') === "true");
         app.undo = true;
         app.preloadAudio();
-        if (!app.useDarkTheme) {
-            document.body.classList.remove('dark');
-        } else {
-            if (!document.body.classList.contains("dark")) {
-                document.body.classList.add("dark")
-            }
-        }
+        document.body.className = app.theme;
         bb.init({
-            controlsDark: app.useDarkTheme,
-            listsDark: app.useDarkTheme,
+            controlsDark: app.theme === 'dark',
+            listsDark: app.theme === 'dark',
             onscreenready: function(e, id) {
                 i18n.process(e, app.lang);
-                if (app.useDarkTheme) {
+                bb.screen.controlColor = (app.theme === 'dark') ? 'dark' : 'light';
+                bb.screen.listColor = (app.theme === 'dark') ? 'dark' : 'light';
+                if (app.theme === 'dark') {
                     var screen = e.querySelector('[data-bb-type=screen]');
                     if (screen) {
                         screen.style['background-color'] = app.darkScreenColor;
                     }
+                    if (document.body.classList.contains("vivid")) {
+                        document.body.classList.remove("vivid");
+                    }
                     if (!document.body.classList.contains("dark")) {
-                        document.body.classList.add("dark")
+                        document.body.classList.add("dark");
+                    }
+                } else if (app.theme === 'vivid') {
+                    document.body.className = 'vivid';
+                    var screen = e.querySelector('[data-bb-type=screen]');
+                    if (screen) {
+                        //screen.style['background-color'] = app.vividbackground;
+                    }
+                } else {
+                    if (document.body.classList.contains("dark")) {
+                        document.body.classList.remove("dark");
+                    }
+                    if (document.body.classList.contains("vivid")) {
+                        document.body.classList.remove("vivid");
                     }
                 }
             },
@@ -79,13 +92,13 @@ var app = {
                 }
                 if (id === 'game') {
                     loadstate(e);
-                    window.requestAnimationFrame(function() {
+                    window.webkitRequestAnimationFrame(function() {
                         app.gamemgr = new GameManager(4, KeyboardInputManager, HTMLActuator, LocalStorageManager);
                     });
                 }
             }
         });
-        if (app.useDarkTheme) {
+        if (app.theme === 'dark') {
             document.body.style['background-color'] = app.darkScreenColor;
             document.body.style['color'] = '#88919A';
         }
@@ -118,17 +131,19 @@ function openTwitterAccount(account) {
 //settings
 
 function refreshTheme() {
-    window.location.reload();
+    //window.location.reload();
 }
 
 function loadSettings(element) {
     // 读取配置数据
-    var togglebutton = element.getElementById('themeToggle');
+    var togglebutton = element.getElementById('themeSelect');
     var theme = localStorage.getItem("theme");
-    if ('true' === theme) {
-        togglebutton.setChecked(true);
+    if (theme === 'dark') {
+        togglebutton.setSelectedItem(0);
+    } else if (theme === 'vivid') {
+        togglebutton.setSelectedItem(2);
     } else {
-        togglebutton.setChecked(false);
+        togglebutton.setSelectedItem(1);
     }
 
     // 读取配置数据
@@ -140,14 +155,24 @@ function loadSettings(element) {
         sndbutton.setChecked(false);
     }
 
+    // 读取UNDO数据
+
+    g('undoflag').innerHTML = app.undo ? i18n.get('UNDO_OK', app.lang) : i18n.get('UNDO_ERROR', app.lang);
+    
     //bb.refresh();
+}
+function saveTheme(e) {
+    app.theme = e.value;
+    localStorage.setItem("theme", e.value);
 }
 function saveSettings(e) {
     if (e.checked) {
         console.log(">>使用黑色主题.");
+        app.useDarkTheme = true;
         localStorage.setItem("theme", "true");
     } else {
         console.log(">>使用亮色主题.");
+        app.useDarkTheme = false;
         localStorage.setItem("theme", "false");
     }
 }
@@ -162,7 +187,7 @@ function saveSoundSettings(e) {
 }
 
 function loadstate(e) {
-    var tm = document.querySelectorAll('[class=bb-menu-bar-item]')[3];
+    var tm = e.querySelectorAll('[class=bb-menu-bar-item]')[3];
     if (app.useAudio) {
         tm.firstChild.src = 'img/ic_speaker.png';
         tm.lastChild.innerHTML = i18n.get('_mute', app.lang);
@@ -186,7 +211,6 @@ function undoHandler(event) {
     // undo button click handler
     app.gamemgr.move(-1);
 }
-
 
 
 function g(id) {

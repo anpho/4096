@@ -7,7 +7,6 @@
     <feature name="com.blackberry.invoke.card" value="com.blackberry.invoke.card" />
     <feature name="com.blackberry.io" value="com.blackberry.io" />
     <feature name="com.blackberry.jpps" />
-    <feature name="com.blackberry.payment" value="com.blackberry.payment" />
     <feature name="com.blackberry.system" value="com.blackberry.system" />
     <feature name="com.blackberry.ui.dialog" value="com.blackberry.ui.dialog" />
     <feature name="com.blackberry.ui.toast" value="com.blackberry.ui.toast" />

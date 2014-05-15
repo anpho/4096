@@ -1,22 +1,35 @@
 <div data-bb-type="screen">
-    <div data-bb-type="action-bar" data-bb-back-caption="`back`" i18n="true" onclick="refreshTheme()"></div>
+    <div data-bb-type="action-bar" data-bb-back-caption="`back`" i18n="true">
+         <div data-bb-type="action" data-bb-style="button" data-bb-img="img/ic_email.png" onclick="Invoke.email('anphorea@gmail.com', '[4096]Feedback', '')" i18n="true">`contact_author`</div>
+    </div>
     <div data-bb-type="round-panel">
         <div data-bb-type="panel-header" i18n="true">`visualsettings`</div>
-        <table style="width:100%">
-            <tr>
-                <td><div data-bb-type="label" style="float:left;line-height: 94px" i18n="true">`dark`</div></td>
-                <td width="5%"><input type="checkbox" style="float:right" id="themeToggle" onchange="saveSettings(this)"></td>
-            </tr>
-        </table>
+        <div >
+            <div data-bb-type="label" i18n="true">`dark`</div>
+            <select data-bb-style="stretch" onchange="saveTheme(this)" id="themeSelect">
+                <option value="dark" >Dark</option>
+                <option value="bright">Bright</option>
+                <option value="vivid" >Vivid</option>
+            </select>
+        </div>
+        <div i18n="true" style="font-size: 0.8em">`restart_required`</div>
     </div>
 
     <div data-bb-type="round-panel">
         <div data-bb-type="panel-header" i18n="true">`sound`</div>
-        <table style="width:100%">
-            <tr>
-                <td><div data-bb-type="label" style="float:left;line-height: 94px" i18n="true">`usesound`</div></td>
-                <td width="5%"><input type="checkbox" style="float:right" id="soundToggle" onchange="saveSoundSettings(this)"></td>
-            </tr>
-        </table>
+        <div class="twocolumn">
+            <div data-bb-type="label" style="float:left;line-height: 94px" i18n="true">`usesound`</div>
+            <div><input type="checkbox" style="float:right" id="soundToggle" onchange="saveSoundSettings(this)"></div>
+        </div>
+        <div i18n="true" style="font-size: 0.8em">`sound_tips`</div>
     </div>
+
+    <div data-bb-type="round-panel">
+        <div data-bb-type="panel-header" i18n="true">`Undo`</div>
+        <div class="twocolumn">
+            <div i18n="true">`status`</div>
+            <div><span id='undoflag' i18n='true'>`checking`</span></div>
+        </div>
+        <div i18n="true" style="font-size: 0.8em">`undo_tips`</div>
+    </div>    
 </div>
