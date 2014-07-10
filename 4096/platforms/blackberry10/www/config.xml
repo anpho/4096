@@ -1,17 +1,17 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="anpho.game4096" version="1.2.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:rim="http://www.blackberry.com/ns/widgets">
     <feature name="com.blackberry.app" value="com.blackberry.app" />
-    <feature name="com.blackberry.community.LowLatencyAudio" value="com.blackberry.community.LowLatencyAudio" />
-    <feature name="com.blackberry.community.screenshot" value="com.blackberry.community.screenshot" />
-    <feature name="com.blackberry.invoke" value="com.blackberry.invoke" />
-    <feature name="com.blackberry.invoke.card" value="com.blackberry.invoke.card" />
-    <feature name="com.blackberry.io" value="com.blackberry.io" />
+    <feature name="com.blackberry.utils" />
     <feature name="com.blackberry.jpps" />
     <feature name="com.blackberry.system" value="com.blackberry.system" />
     <feature name="com.blackberry.ui.dialog" value="com.blackberry.ui.dialog" />
-    <feature name="com.blackberry.ui.toast" value="com.blackberry.ui.toast" />
-    <feature name="com.blackberry.utils" />
     <feature name="SplashScreen" value="SplashScreen" />
+    <feature name="com.blackberry.invoke" value="com.blackberry.invoke" />
+    <feature name="com.blackberry.invoke.card" value="com.blackberry.invoke.card" />
+    <feature name="com.blackberry.io" value="com.blackberry.io" />
+    <feature name="com.blackberry.community.LowLatencyAudio" value="com.blackberry.community.LowLatencyAudio" />
+    <feature name="com.blackberry.community.screenshot" value="com.blackberry.community.screenshot" />
+    <feature name="com.blackberry.ui.toast" value="com.blackberry.ui.toast" />
     <name>4096</name>
     <author>anpho</author>
     <description>Join the numbers and get to the 4096 tile!</description>

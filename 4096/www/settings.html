@@ -1,20 +1,41 @@
 <div data-bb-type="screen">
     <div data-bb-type="action-bar" data-bb-back-caption="`back`" i18n="true">
-         <div data-bb-type="action" data-bb-style="button" data-bb-img="img/ic_email.png" onclick="Invoke.email('anphorea@gmail.com', '[4096]Feedback', '')" i18n="true">`contact_author`</div>
+        <div data-bb-type="action" data-bb-style="button" data-bb-img="img/ic_email.png" onclick="Invoke.email('anphorea@gmail.com', '[4096]Feedback', '')" i18n="true">`contact_author`</div>
     </div>
     <div data-bb-type="round-panel">
-        <div data-bb-type="panel-header" i18n="true">`visualsettings`</div>
+        <div data-bb-type="panel-header" i18n>`language`</div>
+        <select data-bb-style="stretch" onchange="saveLang(this)" id="langSelect">
+            <option value="en-US">English</option>
+            <option value="zh-CN">简体中文</option>
+            <option value="zh-TW">繁體中文</option>
+            <option value="id-ID">Indonesian</option>
+            <option value="fr-FR">Français</option>
+            <option value="es-ES">Spanish</option>
+            <option value="it-IT">Italiano</option>
+        </select>
+    </div>
+    <div data-bb-type="round-panel"> 
+        <div data-bb-type="panel-header" i18n>`animation_speed`</div>
+        <select data-bb-style="stretch" onchange="saveSpeed(this)" id="animSelect">
+            <option value="slow" data-bb-accent-text="200ms"  i18n>`Slow`</option>
+            <option value="normal" data-bb-accent-text="150ms" i18n>`Normal`</option>
+            <option value="fast" data-bb-accent-text="100ms" i18n>`Fast`</option>
+        </select>
+    </div>
+    <div data-bb-type="round-panel">
+        <div data-bb-type="panel-header" i18n>`visualsettings`</div>
         <div >
             <div data-bb-type="label" i18n="true">`dark`</div>
             <select data-bb-style="stretch" onchange="saveTheme(this)" id="themeSelect">
-                <option value="dark" >Dark</option>
-                <option value="bright">Bright</option>
-                <option value="vivid" >Vivid</option>
+                <option value="dark" i18n="true">`t_dark`</option>
+                <option value="bright" i18n="true">`t_bright`</option>
+                <option value="vivid" i18n="true">`t_vivid`</option>
+                <option value="blue" i18n="true">`t_blue`</option>
+                <option value="flat" i18n="true">`t_flat` (Pro)</option>
             </select>
         </div>
         <div i18n="true" style="font-size: 0.8em">`restart_required`</div>
     </div>
-
     <div data-bb-type="round-panel">
         <div data-bb-type="panel-header" i18n="true">`sound`</div>
         <div class="twocolumn">
@@ -31,5 +52,12 @@
             <div><span id='undoflag' i18n='true'>`checking`</span></div>
         </div>
         <div i18n="true" style="font-size: 0.8em">`undo_tips`</div>
-    </div>    
+    </div>
+    <div data-bb-type="round-panel"> 
+        <div data-bb-type="panel-header" i18n="true">`resetgame`</div>
+        <div>
+            <div data-bb-type="button" i18n="true" data-mrk-alert="true" data-bb-style="stretch"onclick="resetHandler(this)">`cleargame`</div>
+        </div>
+        <div i18n="true" style="font-size: 0.8em">`reset_tips`</div>
+    </div>
 </div>

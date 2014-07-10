@@ -10,7 +10,12 @@ var app = {
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
-
+        document.addEventListener('windowstatechanged', this.saveState, false);
+    },
+    saveState: function() {
+        if (app.gamemgr) {
+            app.gamemgr.storageManager.flush();
+        }
     },
     // deviceready Event Handler
     //
@@ -30,6 +35,7 @@ var app = {
     gamemgr: null,
     ss: null,
     lang: null,
+    speed: "normal",
     undo: true,
     vividbackground: "#776e65",
     screenshot: null,
@@ -46,13 +52,15 @@ var app = {
         });
     },
     bbinit: function() {
-        app.lang = blackberry.system.language;
+        app.lang = localStorage.getItem("lang") ? localStorage.getItem("lang") : blackberry.system.language;
+        app.speed = localStorage.getItem("speed") ? localStorage.getItem("speed") : "normal";
         app.ss = "file://" + blackberry.io.home + "/ss.png";
         app.theme = localStorage.getItem('theme');
         app.useAudio = (localStorage.getItem('sound') === "true");
         app.undo = true;
         app.preloadAudio();
         document.body.className = app.theme;
+
         bb.init({
             controlsDark: app.theme === 'dark',
             listsDark: app.theme === 'dark',
@@ -60,35 +68,71 @@ var app = {
                 i18n.process(e, app.lang);
                 bb.screen.controlColor = (app.theme === 'dark') ? 'dark' : 'light';
                 bb.screen.listColor = (app.theme === 'dark') ? 'dark' : 'light';
+                document.body.className="";
                 if (app.theme === 'dark') {
                     var screen = e.querySelector('[data-bb-type=screen]');
                     if (screen) {
-                        screen.style['background-color'] = app.darkScreenColor;
-                    }
-                    if (document.body.classList.contains("vivid")) {
-                        document.body.classList.remove("vivid");
+                        screen.style['background'] = theme.dark.bg;
+                        screen.style['color'] = theme.dark.color;
                     }
                     if (!document.body.classList.contains("dark")) {
                         document.body.classList.add("dark");
                     }
                 } else if (app.theme === 'vivid') {
-                    document.body.className = 'vivid';
+                    if (!document.body.classList.contains("vivid")) {
+                        document.body.classList.add("vivid");
+                    }
                     var screen = e.querySelector('[data-bb-type=screen]');
                     if (screen) {
-                        //screen.style['background-color'] = app.vividbackground;
+                        screen.style['background'] = theme.vivid.bg;
+                        screen.style['color'] = theme.vivid.color;
+                    }
+                } else if (app.theme === 'blue') {
+                    if (!document.body.classList.contains("blue")) {
+                        document.body.classList.add("blue");
+                    }
+                    var screen = e.querySelector('[data-bb-type=screen]');
+                    if (screen) {
+                        screen.style['background'] = theme.blue.bg;
+                        screen.style['color'] = theme.blue.color;
+                    }
+                } else if (app.theme === 'flat') {
+                    if (!document.body.classList.contains("flat")) {
+                        document.body.classList.add("flat");
+                    }
+                    var screen = e.querySelector('[data-bb-type=screen]');
+                    if (screen) {
+                        screen.style['background'] = theme.flat.bg;
+                        screen.style['color'] = theme.flat.color;
                     }
                 } else {
-                    if (document.body.classList.contains("dark")) {
-                        document.body.classList.remove("dark");
+                    var screen = e.querySelector('[data-bb-type=screen]');
+                    if (screen) {
+                        screen.style['background'] = "";
+                        screen.style['color'] = "";
                     }
-                    if (document.body.classList.contains("vivid")) {
-                        document.body.classList.remove("vivid");
-                    }
+                }
+                //处理速度 ===================================
+                document.body.classList.add(app.speed);
+
+
+                if (id !== "game") {
+                    app.saveState();
+                }
+
+                if (id === 'settings') {
+                    loadLocalSettings(e);
                 }
             },
             ondomready: function(e, id, param) {
                 if (id === 'settings') {
-                    loadSettings(e);
+                    //Register BBM
+                    if (!Bbm.registered) {
+                        Bbm.register();
+                    }
+                    setTimeout(function() {
+                        loadSettings(e);
+                    }, 1);
                 }
                 if (id === 'game') {
                     loadstate(e);
@@ -98,9 +142,24 @@ var app = {
                 }
             }
         });
+        /*
+         * 应用启动时不闪屏
+         */
         if (app.theme === 'dark') {
-            document.body.style['background-color'] = app.darkScreenColor;
-            document.body.style['color'] = '#88919A';
+            document.body.style['background-color'] = theme.dark.bg;
+            document.body.style['color'] = theme.dark.color;
+        } else if (app.theme === 'blue') {
+            document.body.style['background-color'] = theme.blue.bg;
+            document.body.style['color'] = theme.blue.color;
+        } else if (app.theme === 'vivid') {
+            document.body.style['background-color'] = theme.vivid.bg;
+            document.body.style['color'] = theme.vivid.color;
+        } else if (app.theme === 'flat') {
+            document.body.style['background-color'] = theme.flat.bg;
+            document.body.style['color'] = theme.flat.color;
+        } else if (app.theme === 'bright') {
+            document.body.style['background-color'] = theme.def.bg;
+            document.body.style['color'] = theme.def.color;
         }
         bb.pushScreen('game.html', 'game');
         navigator.splashscreen.hide();
@@ -133,7 +192,9 @@ function openTwitterAccount(account) {
 function refreshTheme() {
     //window.location.reload();
 }
+function loadLocalSettings(element) {
 
+}
 function loadSettings(element) {
     // 读取配置数据
     var togglebutton = element.getElementById('themeSelect');
@@ -142,8 +203,42 @@ function loadSettings(element) {
         togglebutton.setSelectedItem(0);
     } else if (theme === 'vivid') {
         togglebutton.setSelectedItem(2);
+    } else if (theme === 'blue') {
+        togglebutton.setSelectedItem(3);
+    } else if (theme === 'flat') {
+        togglebutton.setSelectedItem(4);
     } else {
         togglebutton.setSelectedItem(1);
+    }
+
+    //语言配置
+    var langbtn = element.getElementById('langSelect');
+    var locale = app.lang;
+    if (locale === 'zh-CN') {
+        langbtn.setSelectedItem(1);
+    } else if (locale === 'zh-TW') {
+        langbtn.setSelectedItem(2);
+    } else if (locale === 'fr-FR') {
+        langbtn.setSelectedItem(4);
+    } else if (locale === 'id-ID') {
+        langbtn.setSelectedItem(3);
+    } else if (locale === 'es-ES') {
+        langbtn.setSelectedItem(5);
+    } else if (locale === 'it-IT') {
+        langbtn.setSelectedItem(6);
+    } else {
+        langbtn.setSelectedItem(0);
+    }
+
+    //速度配置animSelect
+    var animSelect = element.getElementById('animSelect');
+    var speed = app.speed;
+    if (speed === 'slow') {
+        animSelect.setSelectedItem(0);
+    } else if (speed === 'normal') {
+        animSelect.setSelectedItem(1);
+    } else if (speed === 'fast') {
+        animSelect.setSelectedItem(2);
     }
 
     // 读取配置数据
@@ -155,15 +250,44 @@ function loadSettings(element) {
         sndbutton.setChecked(false);
     }
 
+
     // 读取UNDO数据
 
     g('undoflag').innerHTML = app.undo ? i18n.get('UNDO_OK', app.lang) : i18n.get('UNDO_ERROR', app.lang);
-    
-    //bb.refresh();
 }
 function saveTheme(e) {
-    app.theme = e.value;
-    localStorage.setItem("theme", e.value);
+    if (app.undo) {
+        app.theme = e.value;
+        localStorage.setItem("theme", e.value);
+    } else if (e.value === "flat") {
+        Toast.regular(i18n.get('UNDO_ERROR', app.lang), 1500);
+        switch (app.theme) {
+            case "dark":
+                e.setSelectedItem(0);
+                break;
+            case "vivid":
+                e.setSelectedItem(2);
+                break;
+            case "blue":
+                e.setSelectedItem(3);
+                break;
+            default:
+                e.setSelectedItem(1);
+                break;
+        }
+        return false;
+    } else {
+        app.theme = e.value;
+        localStorage.setItem("theme", e.value);
+    }
+}
+function saveLang(e) {
+    app.lang = e.value;
+    localStorage.setItem("lang", e.value);
+}
+function saveSpeed(e) {
+    app.speed = e.value;
+    localStorage.setItem("speed", e.value);
 }
 function saveSettings(e) {
     if (e.checked) {
@@ -179,9 +303,11 @@ function saveSettings(e) {
 function saveSoundSettings(e) {
     if (e.checked) {
         console.log(">>启用声音.");
+        app.useAudio = true;
         localStorage.setItem("sound", "true");
     } else {
         console.log(">>禁用声音.");
+        app.useAudio = false;
         localStorage.setItem("sound", "false");
     }
 }
@@ -216,3 +342,47 @@ function undoHandler(event) {
 function g(id) {
     return document.getElementById(id);
 }
+
+
+
+function resetHandler(t) {
+    t.disable();
+    try {
+        blackberry.ui.dialog.standardAskAsync(i18n.get('reset_confirm', app.lang), blackberry.ui.dialog.D_OK_CANCEL, function(r) {
+            if (r.return === 'Ok') {
+                app.gamemgr.storageManager.setBestScore(0);
+                app.gamemgr.storageManager.clearGameState();
+                Toast.regular(i18n.get('reseted', app.lang), 1500);
+            } else {
+                t.enable();
+            }
+        }, {title: i18n.get('reset_title', app.lang)});
+    } catch (e) {
+        Toast.regular("ERROR:" + JSON.stringify(e), 1000);
+        t.enable();
+    }
+
+}
+
+var theme = {
+    dark: {
+        color: "#88919A",
+        bg: "#050710"
+    },
+    vivid: {
+        color: "#000",
+        bg: "url(img/bg3.jpg)"
+    },
+    blue: {
+        color: "#72838f",
+        bg: "#EBF3F9"
+    },
+    def: {
+        color: "#776e65",
+        bg: "url(img/bg2.jpg)"
+    },
+    flat: {
+        bg: "#F7F2E0",
+        color: "#000"
+    }
+};

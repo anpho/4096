@@ -55,7 +55,7 @@ var Bbm = {
     // registers this application with the blackberry.bbm.platform APIs.
     register: function() {
         blackberry.event.addEventListener('onaccesschanged', function(accessible, status) {
-            console.log(accessible + "/" + status);
+            console.log("BBM status: "+accessible + "/" + status);
             if (status === 'unregistered') {
                 blackberry.bbm.platform.register({
                     uuid: 'd4a0327f-c94e-4471-a6b9-c59cff90c5d7' // unique uuid

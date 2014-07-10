@@ -3284,3 +3284,10 @@ body, html {
         height: 50px;
     }
 }
+
+
+.alertbutton{
+    color:White;
+    background-image: -webkit-gradient(linear, center top, center bottom, from(#ff0000), to(#aa0000));
+    border-color:#770000;
+}

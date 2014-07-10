@@ -1,8 +1,8 @@
 function GameManager(size, InputManager, Actuator, StorageManager) {
-    this.size = size; // Size of the grid
-    this.inputManager = new InputManager;
-    this.storageManager = new StorageManager;
-    this.actuator = new Actuator;
+    this.size = size; // 棋盘大小
+    this.inputManager = new InputManager; //输入管理器
+    this.storageManager = new StorageManager; //得分管理器
+    this.actuator = new Actuator; //HTML呈现
 
     this.startTiles = 2;
 
@@ -10,19 +10,18 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
     this.inputManager.on("restart", this.restart.bind(this));
     this.inputManager.on("keepPlaying", this.keepPlaying.bind(this));
 
-    this.undoStack = [];
+    this.undoStack = []; //UNDO栈
     this.setup();
 }
 
-// Restart the game
+// 重起游戏
 GameManager.prototype.restart = function() {
     this.storageManager.clearGameState();
-    this.undoStack = [];
-    this.actuator.continueGame(); // Clear the game won/lost message
+    this.actuator.continueGame(); // 清除游戏胜利、失败消息
     this.setup();
 };
 
-// Keep playing after winning (allows going over 4096)
+// 继续游戏,在达到4096后继续.
 GameManager.prototype.keepPlaying = function() {
     this.keepPlaying = true;
     this.actuator.continueGame(); // Clear the game won/lost message
@@ -30,61 +29,68 @@ GameManager.prototype.keepPlaying = function() {
 
 // Return true if the game is lost, or has won and the user hasn't kept playing
 GameManager.prototype.isGameTerminated = function() {
+    //游戏结束判定标准:
+    /*
+     * over： 游戏结束，即已经满屏且没有可合并的方块
+     * ！（won且选择继续）
+     */
     return this.over || (this.won && !this.keepPlaying);
 };
 
-// Set up the game
+// 开始游戏,设置初始布局
 GameManager.prototype.setup = function() {
     var previousState = this.storageManager.getGameState();
 
-    // Reload the game from a previous game if present
+    // 如果此项有值,证明已经有保存的游戏进度
     if (previousState) {
-        this.grid = new Grid(previousState.grid.size, previousState.grid.cells); // Reload grid
+        this.grid = new Grid(previousState.grid.size, previousState.grid.cells);
         this.score = previousState.score;
         this.over = previousState.over;
         this.won = previousState.won;
+        this.undoStack = previousState.undo ? previousState.undo : [];
         this.keepPlaying = previousState.keepPlaying;
     } else {
         this.grid = new Grid(this.size);
         this.score = 0;
         this.over = false;
         this.won = false;
+        this.undoStack = [];
         this.keepPlaying = false;
 
-        // Add the initial tiles
+        // 添加初始方块，参见line #7
         this.addStartTiles();
     }
 
-    // Update the actuator
     this.actuate();
 };
 
-// Set up the initial tiles to start the game with
+// 设置游戏的初始状态
 GameManager.prototype.addStartTiles = function() {
     for (var i = 0; i < this.startTiles; i++) {
         this.addRandomTile();
     }
 };
 
-// Adds a tile in a random position
+// 向一个随机的位置添加方块
 GameManager.prototype.addRandomTile = function() {
     if (this.grid.cellsAvailable()) {
-        var value = Math.random() < 0.9 ? 2 : 4;
-        var tile = new Tile(this.grid.randomAvailableCell(), value);
-        this.grid.insertTile(tile);
+        var value = Math.random() < 0.9 ? 2 : 4;//90%的概率放入2,10%的概率放入4
+        var tile = new Tile(this.grid.randomAvailableCell(), value);//在一个随机的空位置放入
+        this.grid.insertTile(tile);//插入方块
     }
 };
 
-// Sends the updated grid to the actuator
+// 更新游戏状态到呈现器
 GameManager.prototype.actuate = function() {
     if (this.storageManager.getBestScore() < this.score) {
         this.storageManager.setBestScore(this.score);
     }
 
-    // Clear the state when the game is over (game over only, not win)
     if (this.over) {
+        //如果游戏结束，清空保存的游戏状态。
         this.storageManager.clearGameState();
     } else {
+        //否则,将当前游戏状态写入存储 TODO:此处可能影响性能,可以改为将游戏状态存入一个变量,等游戏结束或者离开页面时再写入.
         this.storageManager.setGameState(this.serialize());
     }
 
@@ -105,7 +111,8 @@ GameManager.prototype.serialize = function() {
         score: this.score,
         over: this.over,
         won: this.won,
-        keepPlaying: this.keepPlaying
+        keepPlaying: this.keepPlaying,
+        undo: this.undoStack
     };
 };
 
@@ -120,6 +127,7 @@ GameManager.prototype.prepareTiles = function() {
 };
 
 // Move a tile and its representation
+// 移动一个方块
 GameManager.prototype.moveTile = function(tile, cell) {
     this.grid.cells[tile.x][tile.y] = null;
     this.grid.cells[cell.x][cell.y] = tile;
@@ -130,13 +138,18 @@ GameManager.prototype.moveTile = function(tile, cell) {
 GameManager.prototype.move = function(direction) {
     // 0: up, 1: right, 2:down, 3: left, -1: undo
     var self = this;
+//
+//    if (this.isGameTerminated())
+//        return; // 如果游戏已经结束,就不再执行任何操作
 
     if (direction === -1) {
         if (!app.undo) {
             Toast.regular(i18n.get('needpurchase', app.lang), 1500);
+            //未购买,弹出提示,退出
             return;
         }
         if (this.undoStack.length > 0) {
+            //已购买,且可后退.
             var prev = this.undoStack.pop();
 
             this.grid.build();
@@ -150,20 +163,17 @@ GameManager.prototype.move = function(direction) {
                 };
                 this.grid.cells[tile.x][tile.y] = tile;
             }
-            this.over = false;
-            this.won = false;
-            this.keepPlaying = false;
+            this.over = false;//未结束
+            this.won = false;//未胜利
+            this.keepPlaying = false;//原因不明
             this.actuator.continueGame();
             this.actuate();
         }
         return;
     }
 
-    if (this.isGameTerminated())
-        return; // Don't do anything if the game's over
 
     var cell, tile;
-
     var vector = this.getVector(direction);
     var traversals = this.buildTraversals(vector);
     var moved = false;
@@ -219,19 +229,20 @@ GameManager.prototype.move = function(direction) {
     });
 
     if (moved) {
+        //如果发生了移动,就加入一个随机方块
         this.addRandomTile();
 
         if (!this.movesAvailable()) {
-            this.over = true; // Game over!
+            this.over = true; // 如果已经没有可以合并的方块,游戏结束
         }
 
         // Save state
-        if (app.undo) {
-            if (this.undoStack.length >= 50) {
-                this.undoStack.shift();
-            }
-            this.undoStack.push(undo);
+//        if (app.undo) {
+        if (this.undoStack.length >= 50) {
+            this.undoStack.shift();
         }
+        this.undoStack.push(undo);
+//        }
 
         this.actuate();
     }
@@ -485,16 +496,18 @@ Grid.prototype.randomAvailableCell = function() {
 
 Grid.prototype.availableCells = function() {
     var cells = [];
-
-    this.eachCell(function(x, y, tile) {
-        if (!tile) {
-            cells.push({
-                x: x,
-                y: y
-            });
+    // 试图修正快速移动时误判游戏结束的情况
+    for (var x = 0; x < this.size; x++) {
+        for (var y = 0; y < this.size; y++) {
+            if (!this.cells[x][y]) {
+                cells.push({
+                    x: x,
+                    y: y
+                });
+            }
         }
-    });
-
+    }
+    //console.log("availableCells" + JSON.stringify(cells));
     return cells;
 };
 
@@ -573,7 +586,7 @@ HTMLActuator.prototype.actuate = function(grid, metadata) {
     var self = this;
 
     window.webkitRequestAnimationFrame(function() {
-        self.clearContainer(self.tileContainer);
+        self.clearContainer(self.tileContainer);//清空全部的tile
 
         grid.cells.forEach(function(column) {
             column.forEach(function(cell) {
@@ -587,10 +600,11 @@ HTMLActuator.prototype.actuate = function(grid, metadata) {
         self.updateBestScore(metadata.bestScore);
 
         if (metadata.terminated) {
+            console.log("Game Terminated:" + JSON.stringify(metadata));
             if (metadata.over) {
-                self.message(false); // You lose
+                self.message(false); // 挂了
             } else if (metadata.won) {
-                self.message(true); // You win!
+                self.message(true); // 胜利
             }
         }
 
@@ -600,6 +614,7 @@ HTMLActuator.prototype.actuate = function(grid, metadata) {
 // Continues the game (both restart and keep playing)
 HTMLActuator.prototype.continueGame = function() {
     this.clearMessage();
+    //清空游戏结束信息
 };
 
 HTMLActuator.prototype.clearContainer = function(container) {
@@ -640,23 +655,28 @@ HTMLActuator.prototype.addTile = function(tile) {
             self.applyClasses(wrapper, classes); // Update the position
         });
     } else if (tile.mergedFrom) {
+//        window.webkitRequestAnimationFrame(function() {
         classes.push("tile-merged");
-        this.applyClasses(wrapper, classes);
+        self.applyClasses(wrapper, classes);
 
         // Render the tiles that merged
         tile.mergedFrom.forEach(function(merged) {
             self.addTile(merged);
         });
+//        })
     } else {
+//        window.webkitRequestAnimationFrame(function() {
         classes.push("tile-new");
-        this.applyClasses(wrapper, classes);
+        self.applyClasses(wrapper, classes);
+//        })
     }
-
+//    window.webkitRequestAnimationFrame(function() {
     // Add the inner part of the tile to the wrapper
     wrapper.appendChild(inner);
 
     // Put the tile on the board
-    this.tileContainer.appendChild(wrapper);
+    self.tileContainer.appendChild(wrapper);
+//    })
 };
 
 HTMLActuator.prototype.applyClasses = function(element, classes) {
@@ -689,17 +709,13 @@ HTMLActuator.prototype.updateScore = function(score) {
 //        addition.textContent = "+" + difference;
 //        this.scoreContainer.appendChild(addition);
         if (app.useAudio) {
-//            setTimeout(function() {
             PGLowLatencyAudio.play("high.wav", function(echoValue) {
             });
-//            }, 1);
         }
     } else {
         if (app.useAudio) {
-//            setTimeout(function() {
             PGLowLatencyAudio.play("low.wav", function(echoValue) {
             });
-//            }, 1);
         }
     }
 };
@@ -712,11 +728,8 @@ HTMLActuator.prototype.message = function(won) {
     var type = won ? "game-won" : "game-over";
     var message = won ? i18n.get('win', app.lang) : i18n.get('over', app.lang);
     if (app.useAudio) {
-//        setTimeout(function() {
         PGLowLatencyAudio.play("win.wav", function(echoValue) {
-//                console.log(echoValue);
         });
-//        }, 1);
     }
     setTimeout(function() {
         app.gamemgr.actuator.messageContainer.classList.add(type);
@@ -784,6 +797,8 @@ KeyboardInputManager.prototype.listen = function() {
         // Down
         37: 3,
         // Left
+
+
         75: 0,
         // Vim up
         76: 1,
@@ -792,18 +807,21 @@ KeyboardInputManager.prototype.listen = function() {
         // Vim down
         72: 3,
         // Vim left
+
+
         87: 0,
         // W
         68: 1,
         // D
         83: 2,
         // S
-        65: 3, // A
+        65: 3,
+        //// A
         90: -1 // Z (undo)    
     };
 
     // Respond to direction keys
-    document.addEventListener("keydown", function(event) {
+    document.onkeydown = function(event) {
         var modifiers = event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
         var mapped = map[event.which];
 
@@ -818,7 +836,7 @@ KeyboardInputManager.prototype.listen = function() {
         if (!modifiers && event.which === 82) {
             self.restart.call(self, event);
         }
-    });
+    };
 
     // Respond to button presses
     this.bindButtonPress(".retry-button", this.restart);
@@ -832,7 +850,7 @@ KeyboardInputManager.prototype.listen = function() {
     //var gameContainer = document.getElementsByClassName("game-container")[0];
     var gameContainer = document.getElementById("gamescr");
 
-    gameContainer.addEventListener(this.eventTouchstart, function(event) {
+    gameContainer.ontouchstart = function(event) {
         if ((event.touches.length > 1) || event.targetTouches > 1) {
             return; // Ignore if touching with more than 1 finger
         }
@@ -841,13 +859,13 @@ KeyboardInputManager.prototype.listen = function() {
         touchStartClientY = event.touches[0].clientY;
 
         event.preventDefault();
-    });
+    };
 
-    gameContainer.addEventListener(this.eventTouchmove, function(event) {
+    gameContainer.ontouchmove = function(event) {
         event.preventDefault();
-    });
+    };
 
-    gameContainer.addEventListener(this.eventTouchend, function(event) {
+    gameContainer.ontouchend = function(event) {
         if ((event.touches.length > 0) || event.targetTouches > 0) {
             return; // Ignore if still touching with one or more fingers
         }
@@ -866,11 +884,11 @@ KeyboardInputManager.prototype.listen = function() {
         var dy = touchEndClientY - touchStartClientY;
         var absDy = Math.abs(dy);
 
-        if (Math.max(absDx, absDy) > 50) {
+        if (Math.max(absDx, absDy) > 30) {
             // (right : left) : (down : up)
             self.emit("move", absDx > absDy ? (dx > 0 ? 1 : 3) : (dy > 0 ? 2 : 0));
         }
-    });
+    };
 };
 
 KeyboardInputManager.prototype.restart = function(event) {
@@ -889,23 +907,13 @@ KeyboardInputManager.prototype.restart = function(event) {
 
 KeyboardInputManager.prototype.keepPlaying = function(event) {
     event.preventDefault();
-    var t = this;
-    try {
-        blackberry.ui.dialog.standardAskAsync(i18n.get('keepplaying', app.lang), blackberry.ui.dialog.D_YES_NO, function(c) {
-            if (c.return === 'Yes') {
-                t.emit("keepPlaying");
-            }
-        }, {title: i18n.get('confirm', app.lang)});
-    } catch (e) {
-        Toast.regular("Exception in standardDialog: " + e, 1500);
-    }
-
+    this.emit("keepPlaying");
 };
 
 KeyboardInputManager.prototype.bindButtonPress = function(selector, fn) {
     var button = document.querySelector(selector);
-    button.addEventListener("click", fn.bind(this));
-    button.addEventListener(this.eventTouchend, fn.bind(this));
+    button.onclick = fn.bind(this);
+    button.ontouchend = fn.bind(this);
 };
 
 window.fakeStorage = {
@@ -927,22 +935,14 @@ window.fakeStorage = {
 function LocalStorageManager() {
     this.bestScoreKey = "bestScore";
     this.gameStateKey = "gameState";
+    this.cache = null;
 
     var supported = this.localStorageSupported();
     this.storage = supported ? window.localStorage : window.fakeStorage;
 }
 
 LocalStorageManager.prototype.localStorageSupported = function() {
-    var testKey = "test";
-    var storage = window.localStorage;
-
-    try {
-        storage.setItem(testKey, "1");
-        storage.removeItem(testKey);
-        return true;
-    } catch (error) {
-        return false;
-    }
+    return true;
 };
 
 // Best score getters/setters
@@ -956,16 +956,28 @@ LocalStorageManager.prototype.setBestScore = function(score) {
 
 // Game state getters/setters and clearing
 LocalStorageManager.prototype.getGameState = function() {
-    var stateJSON = this.storage.getItem(this.gameStateKey);
-    return stateJSON ? JSON.parse(stateJSON) : null;
+    if (!this.cache) {
+        var stateJSON = this.storage.getItem(this.gameStateKey);
+        this.cache = stateJSON ? JSON.parse(stateJSON) : null;
+        console.warn('Read LocalStorage');
+    }
+    return this.cache;
 };
 
 LocalStorageManager.prototype.setGameState = function(gameState) {
-    this.storage.setItem(this.gameStateKey, JSON.stringify(gameState));
+    this.cache = gameState;
+};
+LocalStorageManager.prototype.flush = function() {
+    if (this.cache) {
+        console.warn('Write LocalStorage');
+        this.storage.setItem(this.gameStateKey, JSON.stringify(this.cache));
+    }
 };
 
 LocalStorageManager.prototype.clearGameState = function() {
+    this.cache = null;
     this.storage.removeItem(this.gameStateKey);
+    console.warn('Clear LocalStorage');
 };
 
 function Tile(position, value) {
@@ -1000,13 +1012,13 @@ Tile.prototype.serialize = function() {
 };
 
 Tile.prototype.save = function(next) {
-    var copy = {}
+    var copy = {};
     copy.x = this.x;
     copy.y = this.y;
     copy.value = this.value;
     copy.previousPosition = {
         x: next.x,
         y: next.y
-    }
+    };
     return copy;
-}
+};

@@ -1,14 +1,14 @@
 body {
-    background: #faf8ef;
     color: #776e65;
 }
 body.dark {
-    background: #050710;
     color: #88919A;
 }
 body.vivid{
-    background:#776e65;
     color: #000;
+}
+body.blue{
+    color:#72838f;
 }
 
 /*@-webkit-keyframes move-up {
@@ -36,6 +36,9 @@ body.vivid{
 }
 .vivid .scores-container{
     background: #0B615E;
+}
+.blue .scores-container{
+    background: #96C4E6;
 }
 
 .dark .scores-container{ /* ,.dark .best-container  */
@@ -138,6 +141,9 @@ hr {
 .vivid .game-container {
     background: #F7F2E0;
 }
+.blue .game-container {
+    background: #96C4E6;
+}
 .game-container {
     margin-top: 10px;
     position: relative;
@@ -153,6 +159,9 @@ hr {
 }
 .dark .game-container .game-message {
     background: rgba(17, 27, 37, 0.5);
+}
+.blue .game-container .game-message {
+    background: rgba(150,196,230,0.5);
 }
 .game-container .game-message {
     display: none;
@@ -217,6 +226,9 @@ hr {
     background: rgba(17, 27, 37, 0.35); }
 .vivid .grid-cell {
     background: rgba(219, 184, 149, 0.68); }
+.blue .grid-cell {
+    background: #89BBDE;
+}
 .grid-cell {
     width: 106.25px;
     height: 106.25px;
@@ -286,7 +298,15 @@ hr {
 
 .tile {
     position: absolute;
-    -webkit-transition: 100ms;
+    -webkit-transition: 150ms ease-in-out;
+    -webkit-transition-property: -webkit-transform;
+}
+.fast .tile{
+    -webkit-transition: 100ms ease-in-out;
+    -webkit-transition-property: -webkit-transform;
+}
+.slow .tile{
+    -webkit-transition: 200ms ease-in-out;
     -webkit-transition-property: -webkit-transform;
 }
 
@@ -414,10 +434,18 @@ hr {
     } }
 
 .tile-new .tile-inner {
-    -webkit-animation: appear 200ms;
-    -webkit-animation-delay: 100ms;
+    -webkit-animation: appear 150ms ease 150ms;
     -webkit-animation-fill-mode: backwards;
 }
+.fast .tile-new .tile-inner {
+    -webkit-animation: appear 100ms ease 100ms;
+    -webkit-animation-fill-mode: backwards;
+}
+.slow .tile-new .tile-inner {
+    -webkit-animation: appear 200ms ease 200ms;
+    -webkit-animation-fill-mode: backwards;
+}
+
 
 @-webkit-keyframes pop {
     0% {
@@ -433,7 +461,15 @@ hr {
 
 .tile-merged .tile-inner {
     z-index: 20;
-    -webkit-animation: pop 100ms;
+    -webkit-animation: pop 150ms ease 150ms;
+    -webkit-animation-fill-mode: backwards;
+}
+.fast .tile-merged .tile-inner {
+    -webkit-animation: pop 100ms ease 100ms;
+    -webkit-animation-fill-mode: backwards;
+}
+.slow .tile-merged .tile-inner {
+    -webkit-animation: pop 200ms ease 200ms;
     -webkit-animation-fill-mode: backwards;
 }
 
@@ -462,13 +498,15 @@ hr {
     .scores-container{
         width: 550px;
     }
+    .tile .tile-inner {
+        line-height: 100px;
+    }
 }
 @media screen and (width: 720px) {
     .scores-container{
         width: 550px;
     }
 }
-
 
 @media screen and (height: 1280px) {
     .container{
@@ -554,9 +592,14 @@ hr {
     color:#000000;
 }
 .vivid #undobtn{
-    background: #0B615E url(local:///img/undo_white.png) no-repeat left;
+    background: #0099cc url(local:///img/undo_white.png) no-repeat left;
     background-position-x: 7px;
     color:#000000;
+}
+.blue #undobtn {
+    background: #96C4E6 url(local:///img/undo_white.png) no-repeat left;
+    background-position-x: 7px;
+    color:#FFF;
 }
 #undobtn:hover {
     background: #ff0 url(local:///img/undo_white.png) no-repeat left;
@@ -578,11 +621,6 @@ hr {
     line-height: 3em;
     float: right;
 }
-
-
-
-
-
 
 
 /* vivid */
@@ -640,4 +678,138 @@ hr {
     color: #fff;
     background: #000000;
     box-shadow: 0 0 30px 10px rgba(222, 222, 222, 0.55556), inset 0 0 0 1px rgba(255, 255, 255, 0.43333);
+}
+
+
+
+/* blue */
+
+.blue .tile .tile-inner {
+    background: #a88538;
+}
+.blue .tile.tile-2 .tile-inner {
+    background: #EBF3F9;
+    color:#72838F;
+    box-shadow: 0px 10px 10px 0px rgba(137,166,187, 1);
+}
+.blue .tile.tile-4 .tile-inner {
+    background: #E6F6FF;
+    color:#4A819E;
+    box-shadow: 0px 10px 10px 0px rgba(117,165,199, 1);
+}
+.blue .tile.tile-8 .tile-inner {
+    color: #0C7DB8;
+    background: #D2F0FF;
+    box-shadow: 0px 10px 10px 0px rgba(71,170,229, 1);
+}
+.blue .tile.tile-16 .tile-inner {
+    color: #299897;
+    background: #CFF4F5; 
+    box-shadow: 0px 10px 10px 0px rgba(16,184,182, 1);
+}
+.blue .tile.tile-32 .tile-inner {
+    color: #5AA323;
+    background: #E2F5CF;
+    box-shadow: 0px 10px 10px 0px rgba(100,185,50, 1);
+}
+.blue .tile.tile-64 .tile-inner {
+    color: #865ACA;
+    background: #EDE2FF;
+    box-shadow: 0px 10px 10px 0px rgba(158,123,246, 1);
+}
+.blue .tile.tile-128 .tile-inner {
+    color: #DE476F;
+    background: #FCD1DD;
+    box-shadow: 0px 10px 10px 0px rgba(236,112,144, 1);
+}
+.blue .tile.tile-256 .tile-inner {
+    color: #F76E1F;
+    background: #FFDABC;
+    box-shadow: 0px 10px 10px 0px rgba(252,146,94, 1);
+}
+
+.blue .tile.tile-512 .tile-inner {
+    color: #74941D;
+    background: #BEE358;
+    box-shadow: 0px 10px 10px 0px #74941D;
+}
+.blue .tile.tile-1024 .tile-inner {
+    color: #fff;
+    background: #2d9dab;
+    box-shadow: 0px 10px 10px 0px #0f636f;
+}
+.blue .tile.tile-2048 .tile-inner {
+    color: #000;
+    background: #f89458;
+    box-shadow: 0px 10px 10px 0px #a14e1d;
+}
+.blue .tile.tile-super .tile-inner {
+    color: #fff;
+    background: #372437;
+    box-shadow: 0px 10px 10px 0px #240c24;
+}
+
+
+
+
+// flat
+body.flat {
+    font-family: "Slate Pro Light","Slate Pro";
+}
+.flat .grid-cell {
+    background: #e4ddc9; 
+    border-radius: 200px;
+}
+.flat .tile .tile-inner {
+    color: #000;
+    font-weight:  initial;
+    border-radius: 200px;
+    box-shadow: 0;
+}
+.flat .tile.tile-2 .tile-inner {
+    background: #f0e24a;
+}
+.flat .tile.tile-4 .tile-inner {
+    background: #faa938;
+}
+.flat .tile.tile-8 .tile-inner {
+    background: #f26f64;
+}
+.flat .tile.tile-16 .tile-inner {
+    background: #d783a7; 
+}
+.flat .tile.tile-32 .tile-inner {
+    background: #ad8dc1;
+}
+.flat .tile.tile-64 .tile-inner {
+    background: #7ea9d8;
+}
+.flat .tile.tile-128 .tile-inner {
+    background: #6cbfa9;
+}
+.flat .tile.tile-256 .tile-inner {
+    background: #0dd440;
+}
+.flat .tile.tile-512 .tile-inner {
+    background: #7ceafd;
+}
+.flat .tile.tile-1024 .tile-inner {
+    background: #2078ef;
+}
+.flat .tile.tile-2048 .tile-inner {
+    background: #fc67c8;
+}
+.flat .tile.tile-super .tile-inner {
+    background: #a844f6;
+}
+.flat .scores-container{
+    background: #8b8e93;
+}
+.flat .game-container {
+    background: #F7F2E0;
+}
+.flat #undobtn{
+    background: #8b8e93 url(local:///img/undo_white.png) no-repeat left;
+    background-position-x: 7px;
+    color:#000000;
 }
