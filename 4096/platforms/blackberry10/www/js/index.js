@@ -161,6 +161,9 @@ var app = {
             document.body.style['background-color'] = theme.def.bg;
             document.body.style['color'] = theme.def.color;
         }
+        if (bb.device.is1440x1440){
+            document.querySelector('meta[name=viewport]').setAttribute('content','initial-scale=0.55,user-scalable=no')
+        }
         bb.pushScreen('game.html', 'game');
         navigator.splashscreen.hide();
     }
