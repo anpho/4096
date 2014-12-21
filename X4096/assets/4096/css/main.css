@@ -407,7 +407,7 @@ hr {
 
 #undobtn {
     float:right;
-    background: #bbada0 url(local:///assets/2048/img/undo_white.png) no-repeat left;
+    background: #bbada0 url(local:///assets/4096/img/undo_white.png) no-repeat left;
     background-position-x: 7px;
     width: 0px;
     /*height: 106px;*/
@@ -420,7 +420,7 @@ hr {
     color: #FFFFFF;
 }
 #undobtn:hover {
-    background: #ff0 url(local:///assets/2048/img/undo_white.png) no-repeat left;
+    background: #ff0 url(local:///assets/4096/img/undo_white.png) no-repeat left;
     background-position-x: 7px;
 }
 
@@ -444,7 +444,7 @@ body.blu .grid-cell {
     background: #89BBDE;
 }
 body.blu #undobtn {
-    background: #96C4E6 url(local:///assets/2048/img/undo_white.png) no-repeat left;
+    background: #96C4E6 url(local:///assets/4096/img/undo_white.png) no-repeat left;
     background-position-x: 7px;
     color:#FFF;
 }
@@ -597,7 +597,7 @@ body.dark .tile.tile-super .tile-inner {
 }
 
 body.dark #undobtn {
-    background: #44525F url(local:///assets/2048/img/undo_white.png) no-repeat left;
+    background: #44525F url(local:///assets/4096/img/undo_white.png) no-repeat left;
     background-position-x: 7px;
     color:#000000;
 }
@@ -661,14 +661,14 @@ body.flat .game-container {
     background: #F7F2E0;
 }
 body.flat #undobtn{
-    background: #8b8e93 url(local:///assets/2048/img/undo_white.png) no-repeat left;
+    background: #8b8e93 url(local:///assets/4096/img/undo_white.png) no-repeat left;
     background-position-x: 7px;
     color:#000000;
 }
 
 body.vivid {
     color: #000;
-    background:url(local:///assets/2048/img/bg3.jpg)
+    background:url(local:///assets/4096/img/bg3.jpg)
 }
 
 body.vivid .scores-container{
@@ -685,7 +685,7 @@ body.vivid .grid-cell {
     background: rgba(219, 184, 149, 0.68); }
 
 body.vivid #undobtn{
-    background: #0099cc url(local:///assets/2048/img/undo_white.png) no-repeat left;
+    background: #0099cc url(local:///assets/4096/img/undo_white.png) no-repeat left;
     background-position-x: 7px;
     color:#000000;
 }

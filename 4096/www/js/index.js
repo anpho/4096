@@ -196,7 +196,7 @@ var app = {
 
 function doExport(b) {
     //b is toast toggle
-    var gs = blackberry.io.home + "/2048game.txt";
+    var gs = blackberry.io.home + "/4096game.txt";
     var bestscore = app.gamemgr.storageManager.getBestScore();
     var gamestate = app.gamemgr.storageManager.getGameState();
     gamestate['bestScore'] = bestscore;

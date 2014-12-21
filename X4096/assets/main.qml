@@ -31,7 +31,7 @@ Page {
             ActionItem {
                 title: qsTr("Review") + Retranslate.onLocaleOrLanguageChanged
                 onTriggered: {
-                    Qt.openUrlExternally("http://appworld.blackberry.com/webstore/content/50976889")
+                    Qt.openUrlExternally("http://appworld.blackberry.com/webstore/content/52432887")
                 }
                 imageSource: "asset:///4096/img/ic_browser.png"
             },
@@ -56,7 +56,7 @@ Page {
     onCreationCompleted: {
         Application.thumbnail.connect(savestate) //保存进度
         _app.timeout.connect(take_a_shot);
-        if (_app.readTextFile("data/2048game.txt").length > 0) {
+        if (_app.readTextFile("data/4096game.txt").length > 0) {
             importsheet = Qt.createComponent("import.qml").createObject(gamepage);
             importsheet.beginimport.connect(importRecords);
             importsheet.open();
@@ -78,8 +78,8 @@ Page {
         if (importsheet) {
             importsheet.close();
         }
-        var data = _app.readTextFile("data/2048game.txt");
-        _app.deleteFile("data/2048game.txt");
+        var data = _app.readTextFile("data/4096game.txt");
+        _app.deleteFile("data/4096game.txt");
         console.log("Read Former Record: " + data);
         game.post({
                 "type": "update",
