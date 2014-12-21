@@ -76,7 +76,6 @@ var app = {
         app.ss = "file://" + blackberry.io.home + "/ss.png";
         app.theme = localStorage.getItem('theme');
         app.useAudio = (localStorage.getItem('sound') === "true");
-        app.undo = (localStorage.getItem('undo') === "true");
         if (app.useAudio) {
             app.preloadAudio();
         }
