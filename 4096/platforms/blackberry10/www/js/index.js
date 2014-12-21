@@ -10,7 +10,19 @@ var app = {
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
-        document.addEventListener('windowstatechanged', this.saveState, false);
+    },
+    onBackButton: function () {
+        // For BlackBerry Classic Devices, set the Return Key to UNDO.
+        if (document.getElementById('gamescr')) {
+            app.gamemgr.move(-1);
+        } else if (document.getElementById("gamehelp") || document.getElementById("gamesettings")) {
+            bb.popScreen()
+        }
+    },
+    onMenuButton: function () {
+        if (document.getElementById('gamescr')) {
+            bb.menuBar.showMenuBar();
+        }
     },
     saveState: function() {
         if (app.gamemgr) {
@@ -21,7 +33,10 @@ var app = {
     //
     // The scope of 'this' is the event. In order to call the 'receivedEvent'
     // function, we must explicity call 'app.receivedEvent(...);'
-    onDeviceReady: function() {
+    onDeviceReady: function () {
+        document.addEventListener('menubutton', app.onMenuButton);
+        document.addEventListener("backbutton", app.onBackButton);
+        document.addEventListener('windowstatechanged', app.saveState);
         app.receivedEvent('deviceready');
     },
     // Update DOM on a Received Event
@@ -37,9 +52,11 @@ var app = {
     lang: null,
     speed: "normal",
     undo: true,
+    exported: "false",
     vividbackground: "#776e65",
     screenshot: null,
     useAudio: true,
+    audioLoaded: false,
     preloadAudio: function() {
         PGLowLatencyAudio.preloadAudio("low.wav", "sounds/", 4, function(echoValue) {
             console.log(echoValue);
@@ -50,15 +67,19 @@ var app = {
         PGLowLatencyAudio.preloadAudio("win.wav", "sounds/", 1, function(echoValue) {
             console.log(echoValue);
         });
+        app.audioLoaded = true;
     },
     bbinit: function() {
         app.lang = localStorage.getItem("lang") ? localStorage.getItem("lang") : blackberry.system.language;
         app.speed = localStorage.getItem("speed") ? localStorage.getItem("speed") : "normal";
+        app.exported = localStorage.getItem('exported') === "true";
         app.ss = "file://" + blackberry.io.home + "/ss.png";
         app.theme = localStorage.getItem('theme');
         app.useAudio = (localStorage.getItem('sound') === "true");
-        app.undo = true;
-        app.preloadAudio();
+        app.undo = (localStorage.getItem('undo') === "true");
+        if (app.useAudio) {
+            app.preloadAudio();
+        }
         document.body.className = app.theme;
 
         bb.init({
@@ -138,6 +159,11 @@ var app = {
                     loadstate(e);
                     window.webkitRequestAnimationFrame(function() {
                         app.gamemgr = new GameManager(4, KeyboardInputManager, HTMLActuator, LocalStorageManager);
+                        if (!app.exported) {
+                            doExport(false);
+                            bb.pushScreen('export.html', 'export');
+                            app.exported = true;
+                        }
                     });
                 }
             }
@@ -168,6 +194,44 @@ var app = {
         navigator.splashscreen.hide();
     }
 };
+
+function doExport(b) {
+    //b is toast toggle
+    var gs = blackberry.io.home + "/2048game.txt";
+    var bestscore = app.gamemgr.storageManager.getBestScore();
+    var gamestate = app.gamemgr.storageManager.getGameState();
+    gamestate['bestScore'] = bestscore;
+
+    blackberry.io.sandbox = false;
+    window.webkitRequestFileSystem(window.PERSISTENT, 1024 * 1024, function (fs) {
+        fs.root.getFile(gs, {create: true}, function (DatFile) {
+            DatFile.remove(function (e) {
+                console.log(e);
+                fs.root.getFile(gs, {create: true}, function (Dat) {
+                    Dat.createWriter(function (DatContent) {
+                        var blob = new Blob([JSON.stringify(gamestate)], {type: "text/plain"});
+                        DatContent.write(blob);
+                        if (b) {
+                            okHandler("Game Status Exported.");
+                            localStorage.setItem('exported', "true");
+                            app.exported = true;
+                            bb.popScreen();
+                        }
+                    });
+                });
+            });
+        }, function (e) {
+            errorHandler(e);
+        });
+
+    });
+}
+function errorHandler(e) {
+    Toast.regular(JSON.stringify(e));
+}
+function okHandler(e) {
+    Toast.regular(e);
+}
 
 function openInBrowser(url) {
     blackberry.invoke.invoke({
@@ -229,6 +293,8 @@ function loadSettings(element) {
         langbtn.setSelectedItem(5);
     } else if (locale === 'it-IT') {
         langbtn.setSelectedItem(6);
+    } else if (locale === 'de-DE') {
+        langbtn.setSelectedItem(7);
     } else {
         langbtn.setSelectedItem(0);
     }
@@ -307,6 +373,9 @@ function saveSoundSettings(e) {
     if (e.checked) {
         console.log(">>启用声音.");
         app.useAudio = true;
+        if (!app.audioLoaded) {
+            app.preloadAudio();
+        }
         localStorage.setItem("sound", "true");
     } else {
         console.log(">>禁用声音.");
